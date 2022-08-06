@@ -1,31 +1,30 @@
-'use strict';
+ 'use strict';
 
-let clickCount = 0
-let height = 160
-let width = 200
-let inflationRate = 20
-let maxsize = 400
-let highestPopCount = 0
-let currentPopCount = 0
-let gameLength = 50000
-let clockId = 0
-let timeRemaining = 0
-let currentPlayer = {}
+let clickCount = 0;
+let height = 150;
+let width = 170;
+let inflationRate = 20;
+let maxsize = 330;
+let highestExplodeCount = 0;
+let currentExplodeCount = 0;
+let gameLength = 33000;
+let clockId = 0;
+let timeRemaining = 0;
+let currentPlayer = {};
 let currentColor = 'red'
-let possibleColors = [ 'green', 'blue', 'purple', 'pink', 'yellow', 'silver', 'brown', 'black']
+let possibleColors = ['green', 'blue', 'purple', 'pink', 'yellow', 'silver', 'brown', 'black'];
 const gameControls = document.getElementById('game-controls');
 const mainControls = document.getElementById('main-controls');
 const scoreBoard = document.getElementById('scoreboard');
 const countdown = document.getElementById('countdown');
 const balloon = document.getElementById('balloon');
-const popSound = document.getElementById('pop-sound');
-const popCount = document.getElementById('pop-count');
-const playerName = document.getElementById('player-name');
-const highpopCount = document.getElementById('high-pop-count');
-const game = document.getElementById("game");
+const explodeSound = document.getElementById('explode-sound');
+const explodeCount = document.getElementById('explode-count');
+const highExplodeCount = document.getElementById('high-explode-count');
+let game = document.getElementById("game");
 const playerForm = document.getElementById('player-form');
 
-
+//console.log();
 
 
 
@@ -41,7 +40,7 @@ function startGame() {
 function startClock() {
     timeRemaining = gameLength
     drawClock()
-    clockId = setInterval(drawClock, 1000)
+    clockId = setInterval(drawClock, 100)
 }
 
 function stopClock() {
@@ -49,7 +48,7 @@ function stopClock() {
 }
 function drawClock() {
     countdown.innerText = (timeRemaining / 1000).toString()
-    timeRemaining -= 1000
+    timeRemaining -= 100
 }
 // function drawClock() {
 //     let countdownElem = document.getElementById('countdown')
@@ -61,20 +60,20 @@ function inflate() {
     clickCount++
     height += inflationRate
     width += inflationRate
-    checkBalloonPop()
+    checkballoonExplode()
     draw()
 }
-function checkBalloonPop() {
+function checkballoonExplode() {
     if (height >= maxsize) {
-        console.log('pop the balloon')
+        console.log('explode the balloon')
         balloon.classList.remove(currentColor)
         getRandomColor()
         balloon.classList.add(currentColor)
         //@ts-ignore
 
-        popSound.play()
-        currentPopCount++
-        height = 40
+        explodeSound.play()
+        currentExplodeCount++
+        height = 30
         width = 0
     }
 }
@@ -89,19 +88,19 @@ function getRandomColor() {
 function draw() {
     let balloonElement = document.getElementById("balloon")
     let clickCountElem = document.getElementById("click-count")
-    let popCountElem = document.getElementById('pop-count')
-    let highPopCountElem = document.getElementById('high-pop-count')
+    let explodeCountElem = document.getElementById('explode-count')
+    let highExplodeCountElem = document.getElementById('high-explode-count')
     let playerNameElem = document.getElementById('player-name')
-  
+
     balloonElement.style.height = height + "px"
     balloonElement.style.width = width + "px"
-  
+
     clickCountElem.innerText = clickCount.toString()
-    popCountElem.innerText = currentPopCount.toString()
-    highPopCountElem.innerText = currentPlayer.topScore.toString()
-  
+    explodeCountElem.innerText = currentExplodeCount.toString()
+    highExplodeCountElem.innerText = currentPlayer.topScore.toString()
+
     playerNameElem.innerText = currentPlayer.name
-  }
+}
 
 
 
@@ -115,12 +114,12 @@ function stopGame() {
     height = 120
     width = 100
 
-    if (currentPopCount > currentPlayer.topScore) {
-        currentPlayer.topScore = currentPopCount
+    if (currentExplodeCount > currentPlayer.topScore) {
+        currentPlayer.topScore = currentExplodeCount
         savePlayers()
     }
 
-    currentPopCount = 0
+    currentExplodeCount = 0
 
     stopClock()
     draw()
@@ -152,12 +151,14 @@ function setPlayer(event) {
     draw()
     drawScoreboard()
 }
+// function changePlayer() {
+//     document.getElementById("player-form").classList.remove("hidden")
+//     document.getElementById("game").classList.add("hidden")
+//   }
 function changePlayer() {
-    playerName.classList.remove("hidden")
-    form.classList.add("hidden")
+  playerForm.classList.remove("hidden")
+    game.classList.add("hidden")
 }
-
-
 
 function savePlayers() {
     window.localStorage.setItem("players", JSON.stringify(players))
@@ -167,8 +168,8 @@ function loadPlayers() {
     if (palayersData) {
         players = palayersData
     }
-
 }
+
 function drawScoreboard() {
     let template = ""
 
@@ -179,12 +180,13 @@ function drawScoreboard() {
         <span>
         <i class="fa fa-user"></i>
         ${player.name}
-        </div>
-        <span>score:${player.topScore}</span></div>`
+        </span>
+        <span>score: ${player.topScore}</span></div>`
     })
     document.getElementById("players").innerHTML = template
 }
 
 
 drawScoreboard()
+
 
